@@ -10,20 +10,21 @@ import PhotosUI
 
 struct ContentView: View {
     
-    //photoPickerで選択されたitem
+    //アルバムから選択された画像
     @State var selectedPhotos: [PhotosPickerItem] = []
     //UIImageに変換したアイテムを格納する
     @State var getUImage: UIImage?
+    //トリミングされた画像があれば表示
     @State var CreppedUImage: UIImage?
-    
+    //アルバムorカメラから画像が取得されれば、トリミングへ
     @State private var showImageCropper = false
-    
+    //カメラ表示
     @State var showCameraSheet: Bool = false
     
     
     var body: some View {
         VStack {
-            //編集後の表示
+            //トリミング後に表示
             if (CreppedUImage != nil) {
                 Image(uiImage: CreppedUImage!)
                     .resizable()
@@ -31,7 +32,7 @@ struct ContentView: View {
                     .frame(width:300, height: 300)
             }
             
-            //画像選択
+            //アルバムから選択
             PhotosPicker(selection: $selectedPhotos, maxSelectionCount: 1, matching: .images){
                 Text("getPhoto")
             }
@@ -57,21 +58,21 @@ struct ContentView: View {
                 
             }
         }
-        //得た画像を編集する時に表示
-        .sheet(isPresented: $showImageCropper) {
-            ImageCropper(image: self.$getUImage, visible: self.$showImageCropper, done: imageCropped)
-        }
         //写真を撮る時に表示
         .fullScreenCover(isPresented:$showCameraSheet){
             CameraView(image: $getUImage).ignoresSafeArea()
         }
-        //UIImageが変化したとき
+        //画像を得た時
         .onChange(of:getUImage){
             showImageCropper = true
         }
+        //得た画像を編集する時に表示
+        .sheet(isPresented: $showImageCropper) {
+            ImageCropper(image: self.$getUImage, visible: self.$showImageCropper, done: imageCropped)
+        }
     }
     
-    //編集が終わった後に呼ばれる
+    //トリミングが終わった後に呼ばれる
     func imageCropped(image: UIImage){
         CreppedUImage = image
     }
